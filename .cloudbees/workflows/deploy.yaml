@@ -19,7 +19,7 @@ jobs:
     uses: TARGET_ORG/PROJECT_NAME-workflows/helm-deploy.yaml
     vars: inherit
     secrets: inherit
-    inputs:
+    with:
       artifact-id: ${{ inputs.artifact-id }}
       artifactVersion: ${{ inputs.artifactVersion }}
       environment: ${{ inputs.environment }}
