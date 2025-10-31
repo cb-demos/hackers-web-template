@@ -38,7 +38,7 @@ jobs:
     vars: inherit
     secrets: inherit
     with:
-      appName: hackers-web
+      appName: PROJECT_NAME-web
       versionStart: "1.0"
       repo: TARGET_ORG/PROJECT_NAME-web
     needs: test

@@ -16,13 +16,45 @@ on:
 
 jobs:
   deploy:
-    uses: TARGET_ORG/PROJECT_NAME-workflows/helm-deploy.yaml
-    vars: inherit
-    secrets: inherit
-    with:
-      artifact-id: ${{ inputs.artifact-id }}
-      artifactVersion: ${{ inputs.artifactVersion }}
-      environment: ${{ inputs.environment }}
-      hostname: hackers-web.${{ inputs.environment }}.preview.cb-demos.io
-      appName: hackers-web
-      repo: TARGET_ORG/PROJECT_NAME-web
+    environment: ${{ inputs.environment }}
+    steps:
+      - name: Checkout
+        uses: cloudbees-io/checkout@v1
+        with:
+          repository: TARGET_ORG/PROJECT_NAME-web
+      - uses: cloudbees-days/setup-kubeconfig
+        name: Set kubeconfig
+        with:
+          kubeconfig: ${{ secrets.KUBECONFIG }}
+      - id: install-chart
+        name: Install helm chart
+        uses: cloudbees-io/helm-install@v1
+        with:
+          chart-location: ${{ cloudbees.workspace }}/chart
+          release-name: PROJECT_NAME-web
+          namespace: ${{ vars.namespace }}
+          values: |
+            image:
+              repository: ${{ vars.DOCKER_USER }}/PROJECT_NAME-web
+              tag: ${{ inputs.artifactVersion }}
+            hostname: PROJECT_NAME-web.${{ inputs.environment }}.preview.cb-demos.io
+            config:
+              fmKey: ${{ vars.FM_TOKEN }}
+              apiUrl: https://PROJECT_NAME-api.${{ inputs.environment }}.preview.cb-demos.io/api
+              authUrl: https://PROJECT_NAME-auth.${{ inputs.environment }}.preview.cb-demos.io
+              useVPC: REPLACE_ME_USE_VPC
+              fmInstance: REPLACE_ME_FM_INSTANCE
+      - name: Register deployed artifact
+        uses: cloudbees-io/register-deployed-artifact@v2
+        with:
+          artifact-id: ${{ inputs.artifact-id }}
+          target-environment: ${{ inputs.environment }}
+      - name: Publish evidence
+        uses: cloudbees-io/publish-evidence-item@v1
+        with:
+          content: |-
+            ## Deployed environment
+            [Dev frontend](https://PROJECT_NAME-web.${{ inputs.environment }}.preview.cb-demos.io/)
+
+            Running PROJECT_NAME-web:${{ inputs.artifactVersion }}
+          format: MARKDOWN

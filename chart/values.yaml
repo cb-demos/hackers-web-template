@@ -1,14 +1,16 @@
 image:
-  repository: ""  # Docker image repository
-  tag: ""        # Docker image tag
+  repository: "" # Docker image repository
+  tag: "" # Docker image tag
   pullPolicy: IfNotPresent
 
-hostname: ""  # Application hostname for ingress
+hostname: "" # Application hostname for ingress
 
 config:
-  apiUrl: ""     # API URL
-  fmKey: ""      # Feature Management key
-  authUrl: ""    # Auth service URL
+  apiUrl: "" # API URL
+  fmKey: "" # Feature Management key
+  authUrl: "" # Auth service URL
+  useVPC: false
+  fmInstance: "cloudbees.io"
 
 ingress:
   className: nginx
@@ -23,4 +25,4 @@ resources:
     cpu: 100m
     memory: 128Mi
 
-replicaCount: 1 
+replicaCount: 1
